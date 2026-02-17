@@ -16,7 +16,7 @@
 
 namespace Vm.GameFramework.CustomEventArgs;
 
-public sealed class GameExitedEventArgs(TimeSpan elapsedTime) : EventArgs
+public sealed class GameDrawEventArgs(GameTime gameTime) : EventArgs
 {
-    public TimeSpan ElapsedTime { get; } = elapsedTime;
+    public GameTime GameTime { get; } = gameTime;
 }

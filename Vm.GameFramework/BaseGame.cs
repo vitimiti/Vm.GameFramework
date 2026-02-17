@@ -22,10 +22,10 @@ namespace Vm.GameFramework;
 
 public class BaseGame : IDisposable
 {
-    public event EventHandler<EventArgs>? Initialized;
-    public event EventHandler<GameUpdatedEventArgs>? Updated;
-    public event EventHandler<GameDrawnEventArgs>? Drawn;
-    public event EventHandler<GameExitedEventArgs>? Exited;
+    public event EventHandler<EventArgs>? Initializing;
+    public event EventHandler<GameUpdateEventArgs>? Updating;
+    public event EventHandler<GameDrawEventArgs>? Drawing;
+    public event EventHandler<GameExitEventArgs>? Exiting;
 
     private readonly BaseGameOptions _options = new();
     private readonly GameTime _gameTime = new();
@@ -48,7 +48,7 @@ public class BaseGame : IDisposable
             DrawCore(_gameTime);
         }
 
-        Exited?.Invoke(this, new GameExitedEventArgs(_gameTime.TotalTime));
+        Exiting?.Invoke(this, new GameExitEventArgs(_gameTime.TotalTime));
     }
 
     public void Dispose()
@@ -91,7 +91,7 @@ public class BaseGame : IDisposable
             throw new InvalidOperationException("Failed to set SDL app metadata.", ex);
         }
 
-        Initialized?.Invoke(this, EventArgs.Empty);
+        Initializing?.Invoke(this, EventArgs.Empty);
     }
 
     private void UpdateCore(GameTime gameTime)
@@ -104,12 +104,12 @@ public class BaseGame : IDisposable
             }
         }
 
-        Updated?.Invoke(this, new GameUpdatedEventArgs(gameTime));
+        Updating?.Invoke(this, new GameUpdateEventArgs(gameTime));
     }
 
     private void DrawCore(GameTime gameTime)
     {
-        Drawn?.Invoke(this, new GameDrawnEventArgs(gameTime));
+        Drawing?.Invoke(this, new GameDrawEventArgs(gameTime));
     }
 
     protected virtual void Dispose(bool disposing)

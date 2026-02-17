@@ -16,7 +16,7 @@
 
 namespace Vm.GameFramework.CustomEventArgs;
 
-public sealed class GameUpdatedEventArgs(GameTime gameTime) : EventArgs
+public sealed class GameUpdateEventArgs(GameTime gameTime) : EventArgs
 {
     public GameTime GameTime { get; } = gameTime;
 }
