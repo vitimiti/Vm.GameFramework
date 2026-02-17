@@ -15,6 +15,8 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using Vm.GameFramework.CustomEventArgs;
+using Vm.GameFramework.Options;
+using static Vm.GameFramework.Platform.NativeImports;
 
 namespace Vm.GameFramework;
 
@@ -25,10 +27,13 @@ public class BaseGame : IDisposable
     public event EventHandler<GameDrawnEventArgs>? Drawn;
     public event EventHandler<GameExitedEventArgs>? Exited;
 
+    private readonly BaseGameOptions _options = new();
     private readonly GameTime _gameTime = new();
 
-    private bool _shouldQuit; // TODO: make this change
+    private bool _shouldQuit;
     private bool _disposed;
+
+    public BaseGame(Action<BaseGameOptions>? options = null) => options?.Invoke(_options);
 
     ~BaseGame() => Dispose(disposing: false);
 
@@ -54,11 +59,51 @@ public class BaseGame : IDisposable
 
     private void InitializeCore()
     {
+        SDL_SetMainReady();
+        if (
+            !SDL_Init(
+                SDL_INIT_AUDIO
+                    | SDL_INIT_VIDEO
+                    | SDL_INIT_JOYSTICK
+                    | SDL_INIT_HAPTIC
+                    | SDL_INIT_GAMEPAD
+                    | SDL_INIT_EVENTS
+                    | SDL_INIT_SENSOR
+                    | SDL_INIT_CAMERA
+            )
+        )
+        {
+            throw new InvalidOperationException($"Failed to initialize SDL: {SDL_GetError()}.");
+        }
+
+        try
+        {
+            SetAppMetadataProperty(SDL_PROP_APP_METADATA_NAME_STRING, _options.AppName);
+            SetAppMetadataProperty(SDL_PROP_APP_METADATA_VERSION_STRING, _options.Version.ToString());
+            SetAppMetadataProperty(SDL_PROP_APP_METADATA_IDENTIFIER_STRING, _options.Identifier);
+            SetAppMetadataProperty(SDL_PROP_APP_METADATA_CREATOR_STRING, _options.Creator);
+            SetAppMetadataProperty(SDL_PROP_APP_METADATA_COPYRIGHT_STRING, _options.Copyright);
+            SetAppMetadataProperty(SDL_PROP_APP_METADATA_URL_STRING, _options.Url.ToString());
+            SetAppMetadataProperty(SDL_PROP_APP_METADATA_TYPE_STRING, _options.AppType);
+        }
+        catch (InvalidOperationException ex)
+        {
+            throw new InvalidOperationException("Failed to set SDL app metadata.", ex);
+        }
+
         Initialized?.Invoke(this, EventArgs.Empty);
     }
 
     private void UpdateCore(GameTime gameTime)
     {
+        while (SDL_PollEvent(out SDL_Event ev))
+        {
+            if (ev.type == SDL_EventType.SDL_EVENT_QUIT)
+            {
+                _shouldQuit = true;
+            }
+        }
+
         Updated?.Invoke(this, new GameUpdatedEventArgs(gameTime));
     }
 
@@ -83,8 +128,13 @@ public class BaseGame : IDisposable
         _disposed = true;
     }
 
-    private void ReleaseUnmanagedResources()
+    private static void ReleaseUnmanagedResources() => SDL_Quit();
+
+    private static void SetAppMetadataProperty(string name, string? value)
     {
-        // TODO release unmanaged resources here
+        if (!SDL_SetAppMetadataProperty(name, value))
+        {
+            throw new InvalidOperationException($"Failed to set SDL app metadata property '{name}': {SDL_GetError()}.");
+        }
     }
 }

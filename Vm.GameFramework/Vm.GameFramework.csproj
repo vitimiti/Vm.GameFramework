@@ -15,5 +15,6 @@
     <Company>Vm.GameFramework</Company>
     <Description>Game framework library.</Description>
     <PackageTags>game;framework</PackageTags>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 </Project>
