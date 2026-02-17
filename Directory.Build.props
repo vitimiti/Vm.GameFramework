@@ -1,0 +1,44 @@
+<Project>
+  <PropertyGroup>
+    <!-- Global defaults -->
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningLevel>8</WarningLevel>
+
+    <!-- Interop + GPL-friendly build settings -->
+    <PublishTrimmed>false</PublishTrimmed>
+    <TrimMode>copyused</TrimMode>
+    <InvariantGlobalization>false</InvariantGlobalization>
+    <EnableAot>false</EnableAot>
+    <IlcOptimizationPreference>Speed</IlcOptimizationPreference>
+
+    <!-- Keep optimization in Release -->
+    <Optimize Condition="'$(Configuration)' == 'Release'">true</Optimize>
+
+    <!-- Debug symbols are helpful for open-source users -->
+    <DebugType>portable</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+
+    <!-- Native interop library resolution hints -->
+    <EnableDynamicLoading>true</EnableDynamicLoading>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <DefineConstants>TRACE</DefineConstants>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Recommended analyzers for interop safety (optional, remove if unwanted) -->
+    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="*" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="*" PrivateAssets="all" />
+    <PackageReference Include="Roslynator.Analyzers" Version="*" PrivateAssets="all" />
+    <PackageReference Include="SonarAnalyzer.CSharp" Version="*" PrivateAssets="all" />
+    <PackageReference Include="CSharpier.MSBuild" Version="*" PrivateAssets="all" />
+  </ItemGroup>
+</Project>

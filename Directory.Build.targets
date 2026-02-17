@@ -1,0 +1,79 @@
+<Project>
+  <Target Name="EnsureNoObfuscation" BeforeTargets="PrepareForBuild">
+    <!-- Fail if someone tries to enable trimming or AOT globally -->
+    <Error
+      Condition="'$(PublishTrimmed)' == 'true'"
+      Text="PublishTrimmed=true is not allowed for this project (interop)."
+    />
+    <Error
+      Condition="'$(EnableAot)' == 'true'"
+      Text="EnableAot=true is not allowed for this project (interop)."
+    />
+  </Target>
+
+  <Target Name="CopyNativeLibraries" AfterTargets="Build">
+    <!-- Optional: if you drop native libs under /Native or /runtimes -->
+    <ItemGroup>
+      <NativeLibs Include="$(MSBuildProjectDirectory)/Native/**" />
+      <NativeRuntimeLibs Include="$(MSBuildProjectDirectory)/runtimes/**" />
+    </ItemGroup>
+
+    <Copy
+      SourceFiles="@(NativeLibs)"
+      DestinationFolder="$(TargetDir)%(RecursiveDir)"
+      SkipUnchangedFiles="true"
+      Condition="@(NativeLibs) != ''"
+    />
+
+    <Copy
+      SourceFiles="@(NativeRuntimeLibs)"
+      DestinationFolder="$(TargetDir)%(RecursiveDir)"
+      SkipUnchangedFiles="true"
+      Condition="@(NativeRuntimeLibs) != ''"
+    />
+  </Target>
+
+  <Target Name="SetGitVersion" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <GitVersionFile>$(IntermediateOutputPath)gitversion.txt</GitVersionFile>
+    </PropertyGroup>
+
+    <Exec
+      Command="git describe --tags --match &quot;v*&quot; --long --dirty --always &gt; &quot;$(GitVersionFile)&quot;"
+      IgnoreExitCode="true"
+    />
+
+    <ReadLinesFromFile File="$(GitVersionFile)">
+      <Output TaskParameter="Lines" PropertyName="GitDescribe" />
+    </ReadLinesFromFile>
+
+    <PropertyGroup Condition="'$(GitDescribe)' != ''">
+      <!-- Example: v2026.1.0-3-gabc1234 -->
+      <_GitTag>$([System.Text.RegularExpressions.Regex]::Match($(GitDescribe), '^v(?&lt;v&gt;\d+\.\d+\.\d+)').Groups['v'].Value)</_GitTag>
+      <_GitCommits>$([System.Text.RegularExpressions.Regex]::Match($(GitDescribe), '-(?&lt;c&gt;\d+)-g').Groups['c'].Value)</_GitCommits>
+      <_GitHash>$([System.Text.RegularExpressions.Regex]::Match($(GitDescribe), 'g(?&lt;h&gt;[0-9a-f]+)').Groups['h'].Value)</_GitHash>
+
+      <VersionPrefix>$(_GitTag)</VersionPrefix>
+      <VersionSuffix Condition="'$(_GitCommits)' != '' and '$(_GitCommits)' != '0'">ci.$(_GitCommits)</VersionSuffix>
+
+      <Version Condition="'$(VersionSuffix)' != ''">$(VersionPrefix)-$(VersionSuffix)</Version>
+      <Version Condition="'$(VersionSuffix)' == ''">$(VersionPrefix)</Version>
+
+      <AssemblyVersion>$(VersionPrefix).0</AssemblyVersion>
+      <FileVersion>$(VersionPrefix).0</FileVersion>
+
+      <InformationalVersion Condition="'$(VersionSuffix)' != ''"
+        >$(VersionPrefix)-$(VersionSuffix)+$(_GitHash)</InformationalVersion
+      >
+      <InformationalVersion Condition="'$(VersionSuffix)' == ''">$(VersionPrefix)</InformationalVersion>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(VersionPrefix)' == ''">
+      <VersionPrefix>$([System.DateTime]::UtcNow.ToString("yyyy.MM.dd"))</VersionPrefix>
+      <Version>$(VersionPrefix)</Version>
+      <AssemblyVersion>$(VersionPrefix).0</AssemblyVersion>
+      <FileVersion>$(VersionPrefix).0</FileVersion>
+      <InformationalVersion>$(VersionPrefix)</InformationalVersion>
+    </PropertyGroup>
+  </Target>
+</Project>
