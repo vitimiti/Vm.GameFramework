@@ -22,6 +22,27 @@
 
     <!-- Native interop library resolution hints -->
     <EnableDynamicLoading>true</EnableDynamicLoading>
+
+    <!-- Deterministic, CI-friendly, and SourceLink-ready defaults -->
+    <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
+    <Deterministic>true</Deterministic>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+
+    <!-- Links -->
+    <RepositoryUrl>https://github.com/vitimiti/Vm.GameFramework</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageProjectUrl>https://github.com/vitimiti/Vm.GameFramework</PackageProjectUrl>
+
+    <!-- License (GPLv3+) -->
+    <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
+
+    <!-- README inside the package -->
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+
+    <!-- Symbols -->
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
@@ -34,11 +55,17 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- Recommended analyzers for interop safety (optional, remove if unwanted) -->
-    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="*" PrivateAssets="all" />
-    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="*" PrivateAssets="all" />
-    <PackageReference Include="Roslynator.Analyzers" Version="*" PrivateAssets="all" />
-    <PackageReference Include="SonarAnalyzer.CSharp" Version="*" PrivateAssets="all" />
-    <PackageReference Include="CSharpier.MSBuild" Version="*" PrivateAssets="all" />
+    <PackageReference Include="CSharpier.MSBuild" Version="1.2.6" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="10.0.103" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.11.0" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.103" PrivateAssets="all" />
+    <PackageReference Include="Roslynator.Analyzers" Version="4.15.0" PrivateAssets="all" />
+    <PackageReference Include="SonarAnalyzer.CSharp" Version="10.19.0.132793" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Ensure these end up in the .nupkg root and match the properties above -->
+    <None Include="$(MSBuildThisFileDirectory)README.md" Pack="true" PackagePath="\" />
+    <None Include="$(MSBuildThisFileDirectory)LICENSE.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 </Project>

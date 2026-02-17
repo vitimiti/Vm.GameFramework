@@ -5,35 +5,12 @@
       Condition="'$(PublishTrimmed)' == 'true'"
       Text="PublishTrimmed=true is not allowed for this project (interop)."
     />
-    <Error
-      Condition="'$(EnableAot)' == 'true'"
-      Text="EnableAot=true is not allowed for this project (interop)."
-    />
+    <Error Condition="'$(EnableAot)' == 'true'" Text="EnableAot=true is not allowed for this project (interop)." />
   </Target>
 
-  <Target Name="CopyNativeLibraries" AfterTargets="Build">
-    <!-- Optional: if you drop native libs under /Native or /runtimes -->
-    <ItemGroup>
-      <NativeLibs Include="$(MSBuildProjectDirectory)/Native/**" />
-      <NativeRuntimeLibs Include="$(MSBuildProjectDirectory)/runtimes/**" />
-    </ItemGroup>
+  <!-- ... existing code ... -->
 
-    <Copy
-      SourceFiles="@(NativeLibs)"
-      DestinationFolder="$(TargetDir)%(RecursiveDir)"
-      SkipUnchangedFiles="true"
-      Condition="@(NativeLibs) != ''"
-    />
-
-    <Copy
-      SourceFiles="@(NativeRuntimeLibs)"
-      DestinationFolder="$(TargetDir)%(RecursiveDir)"
-      SkipUnchangedFiles="true"
-      Condition="@(NativeRuntimeLibs) != ''"
-    />
-  </Target>
-
-  <Target Name="SetGitVersion" BeforeTargets="PrepareForBuild">
+  <Target Name="SetGitVersion" BeforeTargets="GenerateNuspec">
     <PropertyGroup>
       <GitVersionFile>$(IntermediateOutputPath)gitversion.txt</GitVersionFile>
     </PropertyGroup>

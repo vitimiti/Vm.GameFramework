@@ -3,5 +3,17 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+
+    <!-- Packaging / NuGet -->
+    <IsPackable>true</IsPackable>
+    <PackageId>Vm.GameFramework</PackageId>
+    <Title>Vm.GameFramework</Title>
+    <GeneratePackageOnBuild Condition="'$(Configuration)' == 'Release'">true</GeneratePackageOnBuild>
+
+    <!-- Fill these in to match your public package identity -->
+    <Authors>The Vm.GameFramework Contributors</Authors>
+    <Company>Vm.GameFramework</Company>
+    <Description>Game framework library.</Description>
+    <PackageTags>game;framework</PackageTags>
   </PropertyGroup>
 </Project>
